@@ -5,27 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VegasBett — Centro de Atención</title>
 
-  <!-- Estilos y config -->
   <link rel="stylesheet" href="./assets/styles.css?v=16"/>
   <script src="./assets/config.js?v=16"></script>
   <script defer src="./assets/app.js?v=16"></script>
 
-  <!-- Metas dinámicas (noindex + OG) -->
+  <!-- Metas dinámicas -->
   <script>
   (function(){
     const C = window.VEGASBETT_CONFIG || {};
     if (C.NO_INDEX) {
-      var m = document.createElement('meta');
-      m.name = 'robots'; m.content = 'noindex,nofollow';
-      document.head.appendChild(m);
+      var m = document.createElement('meta'); m.name = 'robots'; m.content = 'noindex,nofollow'; document.head.appendChild(m);
     }
     if (C.SHARE_PREVIEW !== false) {
-      var t=document.createElement('meta'); t.setAttribute('property','og:title');
-      t.content=(C.MARCA||'VegasBett')+' – Cargas y Retiros'; document.head.appendChild(t);
-      var d=document.createElement('meta'); d.setAttribute('property','og:description');
-      d.content='Atención por WhatsApp. Cargas y retiros.'; document.head.appendChild(d);
-      var i=document.createElement('meta'); i.setAttribute('property','og:image');
-      i.content=(C.OG_IMAGE||'assets/portada_paginaweb.png'); document.head.appendChild(i);
+      var t=document.createElement('meta'); t.setAttribute('property','og:title'); t.content=(C.MARCA||'VegasBett')+' – Cargas y Retiros'; document.head.appendChild(t);
+      var d=document.createElement('meta'); d.setAttribute('property','og:description'); d.content='Atención por WhatsApp. Cargas y retiros.'; document.head.appendChild(d);
+      var i=document.createElement('meta'); i.setAttribute('property','og:image'); i.content=(C.OG_IMAGE||'assets/portada_paginaweb.png'); document.head.appendChild(i);
     }
     var tc=document.createElement('meta'); tc.name='theme-color'; tc.content='#13141b'; document.head.appendChild(tc);
   })();
@@ -34,22 +28,25 @@
 <body>
   <div class="container">
     <div class="card">
+
       <!-- Header -->
       <div class="header">
         <div class="brand">
           <span>🎰 VegasBett</span>
           <span class="badge">Atención 24/7</span>
         </div>
-        <!-- Admin oculto por defecto; se muestra con ?admin=1 -->
+        <!-- Admin: arranca oculto, se muestra con owner -->
         <span class="badge-pill badge-admin hidden" id="adminToggle" title="Panel rápido">Admin</span>
       </div>
+
+      <!-- +18 Jugá responsable -->
+      <div id="badge18" class="resp-18 hidden">+18 • Jugá con responsabilidad</div>
 
       <!-- Logo compacto -->
       <div class="logo-hero">
         <img src="assets/portada_paginaweb.png" alt="VegasBett" class="logo-img"/>
       </div>
 
-      <!-- Título -->
       <h1 class="center">¿Qué necesitás hacer hoy?</h1>
       <p class="center sub">Uso interno.</p>
 
@@ -59,7 +56,7 @@
         <span class="gold-promo">Bono del 35% en tu <u>primera carga</u> (mínimo $500).</span>
       </p>
 
-      <!-- Banner de promos (JS lo muestra y arma el texto) -->
+      <!-- Banner de promos -->
       <a id="promoTicker" class="promo-ticker hidden" href="cargar.html?promo=today" rel="nofollow">
         <span class="promo-led" aria-hidden="true"></span>
         <span id="promoText">Promos de hoy activas</span>
@@ -69,37 +66,65 @@
       <!-- Acciones destacadas -->
       <div class="featured-actions">
         <a class="btn external" data-ico="🌐" href="https://ganamos.io/" target="_blank" rel="noopener noreferrer">Ir a ganamos.io</a>
-        <a class="btn bonus" data-ico="🎁" id="btnSoyNuevo" href="cargar.html?promo=new">Soy nuevo (bono 35%)</a>
+        <a class="btn bonus" data-ico="🎁" href="cargar.html?promo=new">Soy nuevo (bono 35%)</a>
         <button class="btn secondary" data-ico="ℹ️" id="btnMasInfo">Más info</button>
       </div>
 
-      <!-- Botonera principal (cargar/retirar arriba) -->
+      <!-- Botonera principal (primero Cargar/Retirar) -->
       <div class="grid">
         <a class="btn warn" data-ico="💵" href="cargar.html">Quiero Cargar</a>
         <a class="btn" data-ico="💸" href="retirar.html">Quiero Retirar</a>
+
         <button class="btn ok" data-ico="📞" id="btnPrincipal">Número principal (WhatsApp)</button>
         <button class="btn secondary" data-ico="🛟" id="btnRespaldo">En caso de reclamo (WhatsApp)</button>
       </div>
 
       <!-- Admin rápido -->
       <div id="adminPanel" class="admin-panel hidden">
-        <h3>Panel rápido</h3>
-        <p class="sub">Actualizá números al vuelo o generá un link compartible.</p>
+        <h3>Panel rápido (Owner)</h3>
+        <p class="sub">Ingresá tu PIN y actualizá números o datos bancarios. Generá un link compartible para clientes.</p>
+
+        <!-- Resumen activo -->
+        <div class="note" id="adminSummary">
+          <strong>Datos activos:</strong>
+          <ul class="clean">
+            <li>Principal: <span id="sPrincipal"></span></li>
+            <li>Respaldo: <span id="sRespaldo"></span></li>
+            <li>CBU: <span id="sCbu"></span></li>
+            <li>ALIAS: <span id="sAlias"></span></li>
+            <li>Titular: <span id="sTitular"></span></li>
+          </ul>
+        </div>
+
         <div class="form">
           <div><label>PIN</label><input id="pin" type="password" placeholder="Ingresá tu PIN"/></div>
+
           <div><label>Número principal</label><input id="nPrincipal" type="text" placeholder="5492233415879"/></div>
           <div><label>Número respaldo (reclamos)</label><input id="nRespaldo" type="text" placeholder="5492233458173"/></div>
+
+          <div><label>CBU</label><input id="adminCbu" type="text" placeholder="000000310005..."/></div>
+          <div><label>ALIAS</label><input id="adminAlias" type="text" placeholder="Vegass.bet"/></div>
+          <div><label>Titular</label><input id="adminTitular" type="text" placeholder="Priscila Correa"/></div>
+
           <div class="cta-row">
             <button id="aplicarAdmin" class="btn ok">Aplicar ahora</button>
             <button id="genLink" class="btn secondary">Crear link compartible</button>
           </div>
-          <div class="copy"><input id="linkResult" type="text" readonly value=""/><button class="copybtn" data-copy="#linkResult">Copiar link</button></div>
-          <p class="small">Tip: compartí ese link y la página usará esos números automáticamente.</p>
+
+          <div class="copy">
+            <input id="linkResult" type="text" readonly value=""/>
+            <button class="copybtn" data-copy="#linkResult">Copiar link</button>
+          </div>
+
+          <div class="cta-row">
+            <button id="adminLogout" class="btn">Salir de admin</button>
+            <button id="adminPreviewClient" class="btn secondary">Probar como cliente</button>
+          </div>
         </div>
       </div>
 
       <!-- Footer -->
-      <footer class="center">© <span id="year"></span> VegasBett • Jugá responsable • + 18 años.</footer>
+      <footer class="center">© <span id="year"></span> VegasBett • Jugá responsable • +18.</footer>
 
       <!-- Modal Más info / Spech -->
       <div id="modalInfo" class="vb-modal hidden" aria-hidden="true" role="dialog" aria-labelledby="modalInfoTitle">
